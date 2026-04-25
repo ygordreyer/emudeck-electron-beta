@@ -6,6 +6,11 @@ on:
       - beta
   workflow_dispatch:
 
+# Top-level permission so the auto-issued GITHUB_TOKEN can create releases
+# even if the runner inherits a restrictive default.
+permissions:
+  contents: write
+
 jobs:
   # Linux and Windows builds are disabled in this fork — macOS is the primary focus.
   # publish-linux:
@@ -55,7 +60,8 @@ jobs:
           # Unsigned mac build — no Apple Developer cert required
           # CSC_IDENTITY_AUTO_DISCOVERY: false disables signing
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          GH_TOKEN: ${{ secrets.github_token }}
+          # Prefer a user PAT (GH_PAT) if configured; falls back to the auto-issued GITHUB_TOKEN.
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
           npm run postinstall
           npm run build
