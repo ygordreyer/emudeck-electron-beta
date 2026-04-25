@@ -258,7 +258,7 @@
     "publish": {
       "provider": "github",
       "owner": "ygordreyer",
-      "repo": "emudeck-electron-beta"
+      "repo": "emudeck-electron"
     }
   },
   "collective": {
