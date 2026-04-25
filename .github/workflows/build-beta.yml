@@ -81,3 +81,58 @@ jobs:
         with:
           name: EmuDeck-beta-windows
           path: '**/*.exe'
+
+  publish-mac:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v4
+
+      - name: Git Submodule Update
+        run: git submodule update --init --recursive
+
+      - name: Use cached node_modules
+        id: cache-node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Node and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install gnu-sed (required for Set Beta Build step on macOS)
+        run: brew install gnu-sed
+
+      - name: Install dependencies
+        if: steps.cache-node_modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Set Beta Build
+        run: |
+          export PATH="$(brew --prefix)/opt/gnu-sed/libexec/gnubin:$PATH"
+          sed -i "s|main|beta|g" "./src/data/branch.json"
+          sed -i "s|emudeck-electron|emudeck-electron-beta|g" "./package.json"
+
+      - name: Publish releases
+        env:
+          # Unsigned mac build — no Apple Developer cert required
+          # CSC_IDENTITY_AUTO_DISCOVERY: false disables signing
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          GH_TOKEN: ${{ secrets.github_token }}
+        run: |
+          npm run postinstall
+          npm run build
+          npm exec electron-builder -- --publish always --mac
+
+      - name: Upload Mac DMG Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EmuDeck-Beta-Mac
+          path: |
+            release/build/*.dmg
+            release/build/*.zip
