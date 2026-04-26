@@ -8,7 +8,7 @@ import Header from 'components/organisms/Header/Header';
 import ProgressBar from 'components/atoms/ProgressBar/ProgressBar';
 import { BtnSimple } from 'getbasecore/Atoms';
 import Sonic from 'components/organisms/Sonic/Sonic';
-import End from 'components/organisms/Wrappers/End';
+import End from './macWrappers/End';
 
 function EndPage() {
   const { t, i18n } = useTranslation();
@@ -169,8 +169,18 @@ function EndPage() {
           `finish|||powershell -ExecutionPolicy Bypass . $env:USERPROFILE/AppData/Roaming/EmuDeck/backend/setup.ps1`,
         ]);
       } else if (system === 'darwin') {
+        // Sentinel-file pattern:
+        //   1. Delete any stale sentinel from a previous run.
+        //   2. Open Terminal so the user can see progress and answer brew/sudo prompts.
+        //      The Terminal script runs setup.sh, writes the sentinel on exit, then closes itself.
+        //   3. The bash-nolog command blocks polling for the sentinel so the IPC 'finish'
+        //      event only fires AFTER setup.sh has fully completed — preventing the
+        //      Post-Installation Status UI from showing before installs are done.
         ipcChannel.sendMessage('bash-nolog', [
-          `finish|||osascript -e 'tell application "Terminal" to do script "bash ~/.config/EmuDeck/backend/setup.sh" activate'`,
+          `finish|||rm -f "$HOME/.config/EmuDeck/.setup-done"; ` +
+            `osascript -e 'tell application "Terminal" to do script "bash ~/.config/EmuDeck/backend/setup.sh ${branch} false; touch ~/.config/EmuDeck/.setup-done; exit"' >/dev/null; ` +
+            `while [ ! -f "$HOME/.config/EmuDeck/.setup-done" ]; do sleep 2; done; ` +
+            `rm -f "$HOME/.config/EmuDeck/.setup-done"`,
         ]);
       } else {
         ipcChannel.sendMessage('bash-nolog', [

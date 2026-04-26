@@ -674,7 +674,10 @@ ipcMain.on('version', async (event: any) => {
 //
 ipcMain.on('check-git', async (event) => {
   const backChannel = 'check-git';
-  let bashCommand = `cd ~/.config/EmuDeck/backend/ && git rev-parse --is-inside-work-tree`;
+  // On macOS/Linux: also verify that the remote is pointing at OUR fork, not upstream.
+  // If the remote is wrong (stale clone), exit non-zero so the caller knows to re-clone.
+  const MAC_LINUX_REPO = 'https://github.com/ygordreyer/EmuDeck.git';
+  let bashCommand = `cd ~/.config/EmuDeck/backend/ && git rev-parse --is-inside-work-tree && [ "$(git config --get remote.origin.url)" = "${MAC_LINUX_REPO}" ]`;
 
   if (os.platform().includes('win32')) {
     bashCommand = `cd %userprofile% && cd AppData && cd Roaming && cd EmuDeck && cd backend && git rev-parse --is-inside-work-tree`;
@@ -712,7 +715,20 @@ ipcMain.on('clone', async (event, branch) => {
 ipcMain.on('pull', async (event, branch) => {
   const branchGIT = branch;
   const backChannel = 'pull';
-  let bashCommand = `cd ~/.config/EmuDeck/backend && git reset --hard && git clean -fd && git checkout ${branchGIT} && git pull && . ~/.config/EmuDeck/backend/functions/all.sh && appImageInit`;
+  const MAC_LINUX_REPO = 'https://github.com/ygordreyer/EmuDeck.git';
+  // Force the remote URL to our fork before pulling — this corrects any stale upstream clone.
+  // Then hard-reset to origin/<branch> so we always run our mac-aware code, not leftover
+  // upstream scripts that lack the darwin/ directory and *_install_mac branches.
+  let bashCommand =
+    `cd ~/.config/EmuDeck/backend` +
+    ` && git remote set-url origin ${MAC_LINUX_REPO}` +
+    ` && git fetch --depth=1 origin ${branchGIT}` +
+    ` && git reset --hard` +
+    ` && git clean -fd` +
+    ` && git checkout ${branchGIT}` +
+    ` && git reset --hard origin/${branchGIT}` +
+    ` && . ~/.config/EmuDeck/backend/functions/all.sh` +
+    ` && appImageInit`;
 
   if (os.platform().includes('win32')) {
     bashCommand = `cd %userprofile% && cd AppData && cd Roaming && cd EmuDeck && cd backend && powershell -ExecutionPolicy Bypass -command "& { Start-Transcript "$env:APPDATA/EmuDeck/logs/git.log"; git reset --hard ; git clean -fd ; git checkout ${branchGIT} ; git pull --allow-unrelated-histories -X theirs;cd $env:USERPROFILE ; cd AppData ; cd Roaming  ; cd EmuDeck ; cd backend ; cd functions ; . ./all.ps1 ; appImageInit; Stop-Transcript; "}`;
