@@ -23,6 +23,8 @@ The upstream EmuDeck backend (`dragoonDorise/EmuDeck`) has several Linux/SteamOS
 | `cp` fails: script assumes CWD is backend dir | Anchor CWD to backend directory on Darwin |
 | `Plugins_installDeckyRomLibrary` fatal-errors (needs systemd + CEF) | Guard with `[[ "$(uname -s)" != "Darwin" ]]` — skipped on macOS |
 | `/sys/devices/virtual/dmi/id/product_name` doesn't exist on Darwin | `getProductName()` returns empty string on macOS; `testRealDeck()` sets `isRealDeck=false` |
+| Only RetroArch appeared in the "Manage Emulators" screen on macOS | Added macOS allowlist (`MAC_EMUS` Set) in `ManageEmulatorsPage.jsx`; all 16 supported emulators now visible |
+| Downloaded apps show "App is damaged" Gatekeeper error | `mac_install_zip/dmg/targz/7z`: `xattr -cr` before extraction + `ditto` instead of `cp -R`; `hdiutil -noverify -noautoopen` |
 
 ### macOS Prerequisites
 
@@ -40,16 +42,16 @@ xattr -cr /Applications/EmuDeck.app
 
 ---
 
-## 📦 Downloads (v2.5.1)
+## 📦 Downloads (v2.5.2)
 
 Go to [Releases](https://github.com/ygordreyer/emudeck-electron-beta/releases/latest) and download:
 
 | File | Platform |
 |---|---|
-| `EmuDeck-2.5.1-arm64.dmg` | macOS Apple Silicon (M1/M2/M3/M4) |
-| `EmuDeck-2.5.1.dmg` | macOS Intel (x64) |
-| `EmuDeck-2.5.1-arm64-mac.zip` | macOS Apple Silicon (portable zip) |
-| `EmuDeck-2.5.1-mac.zip` | macOS Intel (portable zip) |
+| `EmuDeck-2.5.2-arm64.dmg` | macOS Apple Silicon (M1/M2/M3/M4) |
+| `EmuDeck-2.5.2.dmg` | macOS Intel (x64) |
+| `EmuDeck-2.5.2-arm64-mac.zip` | macOS Apple Silicon (portable zip) |
+| `EmuDeck-2.5.2-mac.zip` | macOS Intel (portable zip) |
 
 ---
 
@@ -57,6 +59,12 @@ Go to [Releases](https://github.com/ygordreyer/emudeck-electron-beta/releases/la
 
 This fork is based on `EmuDeck/emudeck-electron-beta` at tag `v2.5.0` with the following additions:
 
+### v2.5.2
+- **macOS emulator allowlist** — 16 emulators now visible in the Manage page (was only RetroArch)
+- **Quarantine fix** — `ditto` + `xattr -cr` before extraction eliminates "App is damaged" errors
+- **Cemu** — Rosetta 2 note logged when installing on Apple Silicon
+
+### v2.5.1
 - **All 6 pending Dependabot PRs merged** (#30–#35):
   - `@babel/runtime` 7.25.6 → 7.26.10
   - `cookie` + `express` security patches
