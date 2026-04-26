@@ -12,6 +12,17 @@ import Card from 'components/molecules/Card/Card';
 import ProgressBar from 'components/atoms/ProgressBar/ProgressBar';
 import EmuModal from 'components/molecules/EmuModal/EmuModal';
 
+// macOS emulator allowlist — mirrors darwin/data/macSources.json (macSkip !== true)
+// See EMUDECK-MAC-DEBUG-PLAN.md for the canonical list.
+const MAC_EMUS = new Set([
+  'ra', 'dolphin', 'duckstation', 'ppsspp', 'mgba', 'scummvm', 'mame',
+  'melonds', 'flycast', 'pcsx2', 'xemu', 'rpcs3', 'vita3k', 'cemu',
+  'shadps4', 'azahar',
+]);
+const MAC_FRONTENDS = new Set(['esde', 'srm', 'pegasus']);
+const isHiddenOnMac = (sys, id, kind = 'emu') =>
+  sys === 'darwin' && !(kind === 'emu' ? MAC_EMUS : MAC_FRONTENDS).has(id);
+
 import {
   imgra,
   imgares,
@@ -378,10 +389,8 @@ function ManageEmulatorsPage() {
                   return;
                 }
 
-                if (system === 'darwin') {
-                  if (item.id !== 'ra') {
-                    return;
-                  }
+                if (isHiddenOnMac(system, item.id, 'emu')) {
+                  return;
                 }
                 return (
                   <Card
@@ -428,10 +437,8 @@ function ManageEmulatorsPage() {
                   return;
                 }
 
-                if (system === 'darwin') {
-                  if (item.id !== 'esde') {
-                    return;
-                  }
+                if (isHiddenOnMac(system, item.id, 'frontend')) {
+                  return;
                 }
 
                 return (
