@@ -204,6 +204,7 @@
       "package.json"
     ],
     "afterSign": ".erb/scripts/notarize.js",
+    "afterPack": "./scripts/macAdHocSign.js",
     "mac": {
       "target": {
         "target": "default",
@@ -213,9 +214,8 @@
         ]
       },
       "type": "distribution",
-      "hardenedRuntime": true,
-      "entitlements": "assets/entitlements.mac.plist",
-      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "identity": null,
+      "hardenedRuntime": false,
       "gatekeeperAssess": false
     },
     "dmg": {

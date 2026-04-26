@@ -6,7 +6,7 @@ import Wrapper from 'components/molecules/Wrapper/Wrapper';
 import Header from 'components/organisms/Header/Header';
 import Footer from 'components/organisms/Footer/Footer';
 import EmuModal from 'components/molecules/EmuModal/EmuModal';
-import EmulatorSelector from 'components/organisms/Wrappers/EmulatorSelector';
+import EmulatorSelector from './macWrappers/EmulatorSelector';
 import { BtnSimple } from 'getbasecore/Atoms';
 import {
   imgra,

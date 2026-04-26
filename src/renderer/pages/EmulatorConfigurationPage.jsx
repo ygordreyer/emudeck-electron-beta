@@ -6,7 +6,7 @@ import Wrapper from 'components/molecules/Wrapper/Wrapper';
 import Header from 'components/organisms/Header/Header';
 import Footer from 'components/organisms/Footer/Footer';
 
-import EmulatorConfiguration from 'components/organisms/Wrappers/EmulatorConfiguration';
+import EmulatorConfiguration from './macWrappers/EmulatorConfiguration';
 
 import {
   imgra,
