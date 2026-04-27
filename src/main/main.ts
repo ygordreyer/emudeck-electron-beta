@@ -375,7 +375,10 @@ ipcMain.on('emudeck', async (event, command) => {
     if (os.platform().includes('win32')) {
       bashCommand = `cd %userprofile% && cd AppData && cd Roaming && cd EmuDeck && powershell -ExecutionPolicy Bypass -command "& { Start-Transcript "$env:USERPROFILE/EmuDeck/logs/pull.log"; git config --global http.lowSpeedLimit 1000 ; git config --global http.lowSpeedTime 60 ; git config --global http.postBuffer 524288000 ; git clone --no-single-branch --depth=1 https://github.com/EmuDeck/emudeck-we.git ./backend; Stop-Transcript"} && cd backend && git config user.email "emudeck@emudeck.com" && git config user.name "EmuDeck" && git checkout ${branchOG} && cd %userprofile% && if not exist emudeck mkdir emudeck && cd emudeck && Stop-Transcript; && CLS && echo true`;
     } else if (os.platform().includes('darwin')) {
-      bashCommand = `rm -rf ~/.config/EmuDeck/backend && mkdir -p ~/.config/EmuDeck/backend && git config --global http.lowSpeedLimit 1000 && git config --global http.lowSpeedTime 60 && git config --global http.postBuffer 524288000 && git clone --no-single-branch --depth=1 https://github.com/ygordreyer/EmuDeck.git ~/.config/EmuDeck/backend/ && cd ~/.config/EmuDeck/backend && git checkout ${branchOG} && touch ~/.config/EmuDeck/.cloned && printf "ec" && echo true`;
+      // macOS: always checkout 'main' — the canonical branch with all mac fixes.
+      // The Electron CI build stamps branch.json as 'beta' but beta on this fork
+      // is stale upstream code without macOS support.
+      bashCommand = `rm -rf ~/.config/EmuDeck/backend && mkdir -p ~/.config/EmuDeck/backend && git config --global http.lowSpeedLimit 1000 && git config --global http.lowSpeedTime 60 && git config --global http.postBuffer 524288000 && git clone --no-single-branch --depth=1 https://github.com/ygordreyer/EmuDeck.git ~/.config/EmuDeck/backend/ && cd ~/.config/EmuDeck/backend && git checkout main && touch ~/.config/EmuDeck/.cloned && printf "ec" && echo true`;
     } else {
       bashCommand = `rm -rf ~/.config/EmuDeck/backend && mkdir -p ~/.config/EmuDeck/backend && git config --global http.lowSpeedLimit 1000 && git config --global http.lowSpeedTime 60 && git config --global http.postBuffer 524288000 && git clone --no-single-branch --depth=1 https://github.com/ygordreyer/EmuDeck.git ~/.config/EmuDeck/backend/ && cd ~/.config/EmuDeck/backend && git checkout ${branchOG} && touch ~/.config/EmuDeck/.cloned && printf "ec" && echo true`;
     }
@@ -689,7 +692,10 @@ ipcMain.on('check-git', async (event) => {
 });
 
 ipcMain.on('clone', async (event, branch) => {
-  const branchGIT = branch;
+  // macOS: always clone/checkout 'main' — the canonical branch with all mac fixes.
+  // The Electron CI build stamps branch.json as 'beta' but beta on this fork
+  // is stale upstream code without macOS support.
+  const branchGIT = os.platform().includes('darwin') ? 'main' : branch;
   let repo;
   if (os.platform().includes('win32')) {
     repo = 'https://github.com/EmuDeck/emudeck-we.git';
@@ -713,7 +719,9 @@ ipcMain.on('clone', async (event, branch) => {
 });
 
 ipcMain.on('pull', async (event, branch) => {
-  const branchGIT = branch;
+  // macOS: always pull/reset to 'main' — the canonical branch with all mac fixes.
+  // The Electron app may send 'beta' but beta on this fork is stale upstream code.
+  const branchGIT = os.platform().includes('darwin') ? 'main' : branch;
   const backChannel = 'pull';
   const MAC_LINUX_REPO = 'https://github.com/ygordreyer/EmuDeck.git';
   // Force the remote URL to our fork before pulling — this corrects any stale upstream clone.
