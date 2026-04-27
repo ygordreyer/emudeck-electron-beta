@@ -498,9 +498,14 @@ function EmulatorsDetailPage() {
     });
     ipcChannel.sendMessage('emudeck', [`${code}_install|||${code}_install`]);
 
-    ipcChannel.once(`${code}_install`, (message) => {
+      ipcChannel.once(`${code}_install`, (message) => {
       let status = message.stdout;
       status.replace('\n', '');
+      // Capture install output for error reporting
+      const reInstallOutput = [message.stdout, message.stderr]
+        .filter(Boolean)
+        .join('\n')
+        .trim();
       // Lets check if it did install
       ipcChannel.sendMessage('emudeck', [
         `${code}_IsInstalled|||${code}_IsInstalled`,
@@ -567,7 +572,53 @@ function EmulatorsDetailPage() {
           const modalData = {
             active: true,
             header: <span className="h4">{code} failed</span>,
-            body: <p>There was an issue trying to install {code}</p>,
+            body: (
+              <div>
+                <p>There was an issue trying to install {code}.</p>
+                {reInstallOutput && (
+                  <>
+                    <p style={{ marginTop: '0.5rem', fontWeight: 'bold' }}>
+                      Output:
+                    </p>
+                    <pre
+                      style={{
+                        maxHeight: '180px',
+                        overflow: 'auto',
+                        fontSize: '0.7rem',
+                        background: 'rgba(0,0,0,0.4)',
+                        padding: '0.5rem',
+                        borderRadius: '4px',
+                        textAlign: 'left',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {reInstallOutput}
+                    </pre>
+                    <BtnSimple
+                      css="btn-simple--2"
+                      type="button"
+                      aria="Copy output"
+                      onClick={() =>
+                        navigator.clipboard.writeText(reInstallOutput)
+                      }
+                      style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}
+                    >
+                      Copy output
+                    </BtnSimple>
+                  </>
+                )}
+                <p
+                  style={{
+                    fontSize: '0.7rem',
+                    opacity: 0.6,
+                    marginTop: '0.5rem',
+                  }}
+                >
+                  Full log: ~/.config/EmuDeck/logs/emudeckApp.log
+                </p>
+              </div>
+            ),
             css: 'emumodal--xs',
           };
 
@@ -603,6 +654,11 @@ function EmulatorsDetailPage() {
     ipcChannel.once(`${code}_install`, (message) => {
       let status = message.stdout;
       status.replace('\n', '');
+      // Capture install output for error reporting
+      const installOutput = [message.stdout, message.stderr]
+        .filter(Boolean)
+        .join('\n')
+        .trim();
       // Lets check if it did install
       ipcChannel.sendMessage('emudeck', [
         `${code}_IsInstalled|||${code}_IsInstalled`,
@@ -669,7 +725,53 @@ function EmulatorsDetailPage() {
           const modalData = {
             active: true,
             header: <span className="h4">{code} installation failed</span>,
-            body: <p>There was an issue trying to install {code}</p>,
+            body: (
+              <div>
+                <p>There was an issue trying to install {code}.</p>
+                {installOutput && (
+                  <>
+                    <p style={{ marginTop: '0.5rem', fontWeight: 'bold' }}>
+                      Output:
+                    </p>
+                    <pre
+                      style={{
+                        maxHeight: '180px',
+                        overflow: 'auto',
+                        fontSize: '0.7rem',
+                        background: 'rgba(0,0,0,0.4)',
+                        padding: '0.5rem',
+                        borderRadius: '4px',
+                        textAlign: 'left',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {installOutput}
+                    </pre>
+                    <BtnSimple
+                      css="btn-simple--2"
+                      type="button"
+                      aria="Copy output"
+                      onClick={() =>
+                        navigator.clipboard.writeText(installOutput)
+                      }
+                      style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}
+                    >
+                      Copy output
+                    </BtnSimple>
+                  </>
+                )}
+                <p
+                  style={{
+                    fontSize: '0.7rem',
+                    opacity: 0.6,
+                    marginTop: '0.5rem',
+                  }}
+                >
+                  Full log: ~/.config/EmuDeck/logs/emudeckApp.log
+                </p>
+              </div>
+            ),
             css: 'emumodal--xs',
           };
 
