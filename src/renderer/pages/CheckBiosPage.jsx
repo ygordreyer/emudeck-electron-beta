@@ -312,68 +312,6 @@ function CheckBiosPage() {
       <Header title={t('CheckBiosPage.title')} />
       <p className="lead">{t('CheckBiosPage.description')}</p>
 
-      {/* ── Community BIOS Pack installer card ─────────────────────────── */}
-      <div
-        className="card"
-        style={{
-          marginBottom: '1.5rem',
-          padding: '1rem 1.25rem',
-          background: 'rgba(255,255,255,0.05)',
-          borderRadius: '8px',
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}
-      >
-        <h3 style={{ marginBottom: '0.5rem' }}>
-          Auto-install BIOS Files (Community)
-        </h3>
-        <p style={{ fontSize: '0.85rem', marginBottom: '0.75rem', opacity: 0.8 }}>
-          Download missing BIOS files from the community{' '}
-          <a
-            href="https://github.com/Abdess/retrobios"
-            target="_blank"
-            rel="noreferrer"
-          >
-            retrobios
-          </a>{' '}
-          repository directly into your EmuDeck BIOS folder. Only missing or
-          incorrect files are downloaded — existing correct files are skipped.
-        </p>
-        <p
-          style={{
-            fontSize: '0.75rem',
-            opacity: 0.6,
-            marginBottom: '0.75rem',
-            fontStyle: 'italic',
-          }}
-        >
-          ⚠️ A legal disclaimer must be accepted before downloading. EmuDeck
-          does not host or endorse these files.
-        </p>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <BtnSimple
-            css="btn-simple--1"
-            type="button"
-            aria="Install Essential BIOS Pack"
-            onClick={() => askBiosPack('essential')}
-          >
-            Essential Pack (~45 MB)
-          </BtnSimple>
-          <BtnSimple
-            css="btn-simple--2"
-            type="button"
-            aria="Install Full BIOS Pack"
-            onClick={() => askBiosPack('full')}
-          >
-            Full Pack (~1.7 GB)
-          </BtnSimple>
-        </div>
-        <p style={{ fontSize: '0.72rem', opacity: 0.5, marginTop: '0.5rem' }}>
-          Essential: 36 mandatory files (PS1, PS2, DS, Sega CD, Saturn, Dreamcast).
-          Full: 528 files for all emulator cores. Requires Python 3 + internet access.
-        </p>
-      </div>
-      {/* ──────────────────────────────────────────────────────────────────── */}
-
       <CheckBios
         checkBiosAgain={checkBiosAgain}
         ps1Bios={ps1Bios}
@@ -387,6 +325,55 @@ function CheckBiosPage() {
         DSBios={DSBios}
         showNotification={showNotification}
       />
+      {/* ── Community BIOS Pack installer — compact bar below BIOS list ── */}
+      <div
+        style={{
+          marginTop: '1rem',
+          padding: '0.75rem 1rem',
+          background: 'rgba(255,255,255,0.05)',
+          borderRadius: '8px',
+          border: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ flex: 1, minWidth: '200px' }}>
+          <strong style={{ fontSize: '0.9rem' }}>
+            Auto-install BIOS (Community)
+          </strong>
+          <p style={{ fontSize: '0.75rem', opacity: 0.65, margin: '0.2rem 0 0' }}>
+            Downloads from{' '}
+            <a
+              href="https://github.com/Abdess/retrobios"
+              target="_blank"
+              rel="noreferrer"
+            >
+              retrobios
+            </a>
+            {' '}— legal disclaimer required. Skips already-correct files.
+          </p>
+        </div>
+        <BtnSimple
+          css="btn-simple--1"
+          type="button"
+          aria="Essential Pack ~45 MB"
+          onClick={() => askBiosPack('essential')}
+        >
+          Essential (~45 MB)
+        </BtnSimple>
+        <BtnSimple
+          css="btn-simple--2"
+          type="button"
+          aria="Full Pack ~1.7 GB"
+          onClick={() => askBiosPack('full')}
+        >
+          Full (~1.7 GB)
+        </BtnSimple>
+      </div>
+      {/* ──────────────────────────────────────────────────────────────────── */}
+
       <Footer
         next={false}
         disabledNext={disabledNext}
